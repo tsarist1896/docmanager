@@ -8,6 +8,7 @@ abstract class HTMLElement {
 	protected $attributes       = [];
 	protected $content          = [];
 	protected $closing          = true;
+	protected $mark             = '';
 
 
 
@@ -44,6 +45,26 @@ abstract class HTMLElement {
 	 */
 	function setParent($parent) {
 		$this->parent = $parent;
+	}
+
+
+
+	/**
+	 * 
+	 */
+	function setMark ($mark) {
+		if (empty($this->mark)) {
+			$this->mark = $mark;
+		}
+	}
+
+
+
+	/**
+	 * 
+	 */
+	function getMark () {
+		return $this->mark;
 	}
 
 
@@ -140,18 +161,23 @@ abstract class HTMLElement {
 	function attr ($name, ...$val) {
 		$r = null;
 
-		if (isset($val[0])) {
-			if (empty($this->valid_attributes) || in_array($name, $this->valid_attributes)) {
-				if ($val[0] !== null) {
-					$this->attributes[$name] = $val[0];
-				} elseif (isset($this->attributes[$name])) {
-					unset($this->attributes[$name]);
-				}
-			}
-
+		if (is_array($name)) {
+			$this->attributes = array_merge($this->attributes, $name);
 			$r = $this;
 		} else {
-			$r = $this->attributes[$name] ?? null;
+			if (isset($val[0])) {
+				if (empty($this->valid_attributes) || in_array($name, $this->valid_attributes)) {
+					if ($val[0] !== null) {
+						$this->attributes[$name] = $val[0];
+					} elseif (isset($this->attributes[$name])) {
+						unset($this->attributes[$name]);
+					}
+				}
+	
+				$r = $this;
+			} else {
+				$r = $this->attributes[$name] ?? null;
+			}
 		}
 
 		return $r;

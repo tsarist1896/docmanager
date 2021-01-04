@@ -28,10 +28,14 @@ $page->html->attr('lang', 'ru')
            ->addClass('test')
            ->head->addClass('head')
                  ->attr('data-test', true)
+                 ->title->set('DocManager')
+                        ->parent()
+                 ->setMeta(['name' => 'title', 'content' => 'DocManager'])
                  ->parent()
            ->body->addClass('body red')
                  ->removeClass('red')
                  ->attr('data-attr', 'test data attribute');
+$page->setMeta(['name' => 'description', 'content' => 'Document created with DocManager']);
 $end = microtime(true);
 
 echo $page->get();

@@ -58,4 +58,67 @@ class HTMLDocument extends \docmanager\Document {
 	function setDocumentVersion ($type, $version, $params = []) {
 		$this->content['doctype']->setVersion($type, $version, $params);
 	}
+
+
+
+	/**
+	 * 
+	 */
+	function setTitle ($title) {
+		$this->content['html']->head->title->set($title);
+	}
+
+
+
+	/**
+	 * 
+	 */
+	function getTitle () : string {
+		return $this->content['html']->head->title->get();
+	}
+
+
+
+	/**
+	 * 
+	 */
+	function setCharset ($charset) {
+		$this->content['html']->head->setCharset($charset);
+	}
+
+
+
+	/**
+	 * 
+	 */
+	function getCharset () {
+		return $this->content['html']->head->getCharset();
+	}
+
+
+
+	/**
+	 * 
+	 */
+	function setMeta ($attributes) {
+		$this->content['html']->head->setMeta($attributes);
+	}
+
+
+
+	/**
+	 * 
+	 */
+	function getMetaByAttribute ($name, $value = null) {
+		return $this->content['html']->head->getMetaByAttribute ($name, $value);
+	}
+
+
+
+	/**
+	 * 
+	 */
+	function deleteMetaByAttribute ($name, $value = null) {
+		$this->content['html']->head->deleteMetaByAttribute ($name, $value);
+	}
 }

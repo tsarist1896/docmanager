@@ -1,7 +1,7 @@
 <?php
 namespace docmanager\HTML;
 
-class Html extends HTMLElement {
+final class Html extends HTMLElement {
 	protected $__head = null;
 	protected $__body = null;
 
