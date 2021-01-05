@@ -2,6 +2,7 @@
 namespace docmanager\HTML;
 
 abstract class HTMLElement {
+	protected static $closing_single_tag = false;
 	protected $parent           = null;
 	protected $tag_name         = '';
 	protected $valid_attributes = [];
@@ -27,6 +28,12 @@ abstract class HTMLElement {
 
 	function __toString () {
 		return $this->outerHTML();
+	}
+
+
+
+	static function closingSingleTag (bool $v) {
+		self::$closing_single_tag = $v;
 	}
 
 
@@ -65,6 +72,12 @@ abstract class HTMLElement {
 	 */
 	function getMark () {
 		return $this->mark;
+	}
+
+
+
+	function getTagName () {
+		return $this->tag_name;
 	}
 
 
@@ -110,13 +123,16 @@ abstract class HTMLElement {
 	 */
 	function outerHTML () {
 		$attrs  = $this->getAttributesAsStr();
-		$result = "<{$this->tag_name}".($attrs ? " {$attrs}" : '').'>';
 
 		if ($this->closing) {
+			$result = "<{$this->tag_name}".($attrs ? " {$attrs}" : '').'>';
+			$result .= (count($this->content) > 1 ? "\n" : '');
 			$result .= (implode('', $this->content) . "</{$this->tag_name}>");
+		} else {
+			$result = "<{$this->tag_name}".($attrs ? " {$attrs}" : '').(self::$closing_single_tag ? ' /' : '').'>';
 		}
 
-		return $result;
+		return $result . "\n";
 	}
 
 

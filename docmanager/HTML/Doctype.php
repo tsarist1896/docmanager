@@ -1,7 +1,7 @@
 <?php
 namespace docmanager\HTML;
 
-class Doctype extends HTMLElement {
+final class Doctype extends HTMLElement {
 	private $html_type    = 'html';
 	private $html_version = 5;
 	private $html_mode    = null;
@@ -41,6 +41,7 @@ class Doctype extends HTMLElement {
 		$this->attributes  = [];
 
 		if ($this->html_type === 'xhtml') {
+			HTMLElement::closingSingleTag(true);
 			switch ($version) {
 				case 1:
 					$this->attributes['html']   = '';

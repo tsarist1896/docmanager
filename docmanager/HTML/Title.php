@@ -10,12 +10,18 @@ final class Title extends HTMLElement {
 
 
 
+	/**
+	 * 
+	 */
 	function get () {
 		return $this->content[0];
 	}
 
 
 
+	/**
+	 * 
+	 */
 	function set ($text = '') {
 		$this->content[0] = $text ?: '';
 
