@@ -32,6 +32,9 @@ abstract class HTMLElement {
 
 
 
+	/**
+	 * 
+	 */
 	static function closingSingleTag (bool $v) {
 		self::$closing_single_tag = $v;
 	}
@@ -141,7 +144,7 @@ abstract class HTMLElement {
 	 * Return attributes
 	 * @return string
 	 */
-	private function getAttributes () : array {
+	function getAttributes () : array {
 		return $this->attributes;
 	}
 

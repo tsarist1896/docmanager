@@ -5,6 +5,11 @@ abstract class Document {
 	private static $docs = [];
 	protected $content   = [];
 
+
+
+	/**
+	 * 
+	 */
 	function __construct ($content = false) {
 		if ($content) {
 			$this->set($content);
@@ -12,6 +17,7 @@ abstract class Document {
 
 		self::rememberDocument($this);
 	}
+
 
 
 	/**
@@ -25,6 +31,7 @@ abstract class Document {
 	 * 
 	 */
 	abstract function set ($content);
+
 
 
 	/**

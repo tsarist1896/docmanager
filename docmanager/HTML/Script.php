@@ -1,12 +1,12 @@
 <?php
 namespace docmanager\HTML;
 
-final class Style extends HTMLElement {
+final class Script extends HTMLElement {
 	use HTMLElementPriority;
-	const DEFAULT_TYPE = 'text/css';
+	const DEFAULT_TYPE = 'text/javascript';
 
 	function __construct ($parent = null, $attributes = [], $priority = 0) {
-		$this->tag_name = 'style';
+		$this->tag_name = 'script';
 		$this->parent   = $parent;
 		$this->priority = $priority;
 
@@ -29,12 +29,12 @@ final class Style extends HTMLElement {
 	/**
 	 * 
 	 */
-	function add (string $styles = '') {
-		if ($styles) {
+	function add (string $scripts = '') {
+		if (empty($this->attributes['src']) && !empty($scripts)) {
 			if (empty($this->content[0])) {
-				$this->content[0] = "\n{$styles}\n";
+				$this->content[0] = "\n{$scripts}\n";
 			} else {
-				$this->content[] = "\n{$styles}\n";
+				$this->content[] = "\n{$scripts}\n";
 			}
 		}
 

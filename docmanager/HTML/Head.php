@@ -2,8 +2,11 @@
 namespace docmanager\HTML;
 
 final class Head extends HTMLElement {
+	use ManageInnerTags;
+	use ManageScripts;
+
 	protected $__title   = null;
-	private $callMethods = [
+	private $_callMethods = [
 		'getMetaByAttribute' => [
 			'method' => 'getTagsByAttribute',
 			'tag'    => 'meta'
@@ -15,6 +18,10 @@ final class Head extends HTMLElement {
 		'getStylesByAttribute' => [
 			'method' => 'getTagsByAttribute',
 			'tag'    => 'style'
+		],
+		'getScriptByAttribute' => [
+			'method' => 'getTagsByAttribute',
+			'tag'    => 'script'
 		],
 		'getMetaByFilter' => [
 			'method' => 'getTagsByFilter',
@@ -28,6 +35,10 @@ final class Head extends HTMLElement {
 			'method' => 'getTagsByFilter',
 			'tag'    => 'style'
 		],
+		'getScriptByFilter' => [
+			'method' => 'getTagsByFilter',
+			'tag'    => 'script'
+		],
 		'deleteMeta' => [
 			'method' => 'deleteTag',
 			'tag'    => 'meta'
@@ -40,6 +51,10 @@ final class Head extends HTMLElement {
 			'method' => 'deleteTag',
 			'tag'    => 'style'
 		],
+		'deleteScript' => [
+			'method' => 'deleteTag',
+			'tag'    => 'script'
+		],
 		'deleteMetaByAttribute' => [
 			'method' => 'deleteTagsByAttribute',
 			'tag'    => 'meta'
@@ -51,6 +66,10 @@ final class Head extends HTMLElement {
 		'deleteStylesByAttribute' => [
 			'method' => 'deleteTagsByAttribute',
 			'tag'    => 'style'
+		],
+		'deleteScriptByAttribute' => [
+			'method' => 'deleteTagsByAttribute',
+			'tag'    => 'script'
 		]
 	];
 	private $elements = [
@@ -63,6 +82,9 @@ final class Head extends HTMLElement {
 
 
 
+	/**
+	 * 
+	 */
 	function __construct ($parent = null) {
 		$this->tag_name = 'head';
 		$this->parent   = $parent;
@@ -72,16 +94,10 @@ final class Head extends HTMLElement {
 
 
 
-	function __call ($method, $arguments) {
-		$data = $this->callMethods[$method];
-		return $this->{$data['method']}($data['tag'], ...$arguments);
-	}
-
-
-
+	/**
+	 * 
+	 */
 	function __toString () {
-		$ic = implode('', $this->content);
-
 		uasort($this->content, function ($e1, $e2) {
 			$result = 0;
 
@@ -92,7 +108,7 @@ final class Head extends HTMLElement {
 				if (method_exists($e1, 'getPriority')) {
 					$p1 = $e1->getPriority();
 					$p2 = $e2->getPriority();
-					$result = $p1 < $p2 ? 1 : ($p1 === $p2 ? 0 : -1);
+					$result = $p1 > $p2 ? 1 : ($p1 === $p2 ? 0 : -1);
 				}
 			} else {
 				$result = $i1 > $i2 ? 1 : -1;
@@ -129,13 +145,13 @@ final class Head extends HTMLElement {
 	/**
 	 * 
 	 */
-	function setMeta ($attributes) {
-		$meta = new Meta($this, $attributes);
-		$this->content[] = $meta;
+	function addMeta ($attributes) {
+		$element         = new Meta($this, $attributes);
+		$this->content[] = $element;
 		$content_index   = array_keys($this->content);
-		$meta->setMark(array_pop($content_index));
+		$element->setMark(array_pop($content_index));
 
-		return $this;
+		return $element;
 	}
 
 
@@ -144,135 +160,64 @@ final class Head extends HTMLElement {
 	 * 
 	 */
 	function addLink (array $attributes, int $priority = 0) {
-		$link = new Link($this, $attributes, $priority);
-		$this->content[] = $link;
+		$element         = new Link($this, $attributes, $priority);
+		$this->content[] = $element;
 		$content_index   = array_keys($this->content);
-		$link->setMark(array_pop($content_index));
+		$element->setMark(array_pop($content_index));
 
-		return $this;
+		return $element;
 	}
 
 
 
 	/**
-	 * 
+	 * @param string $styles
+	 * @param array $params
+	 *                 * array attributes
+	 *                 * int   priority
+	 * @return Style
 	 */
-	function addStyles (string $styles, string $type = 'text/css') {
-		$styles_elements = $this->getTagsByAttribute('style', 'type', $type);
+	function addStyles (string $styles, array $params = []/* string $type = 'text/css' */) : Style {
+		$element = false;
 
-		if ($style = array_shift($styles_elements)) {
-			$style->add($styles);
-		} else {
-			$this->addNewStyles($styles, ['type' => $type]);
-		}
+		if ($wrap = HTMLDocument::checkWrapTags($styles, 'style')) {
+			$styles = trim(str_replace([$wrap['start_tag'], $wrap['end_tag']], ['', ''], $styles));
 
-		return $this;
-	}
+			if (!empty($wrap['attributes'])) {
+				if (empty($params['attributes'])) {
+					$params['attributes'] = [];
+				}
 
+				$params['attributes'] += HTMLDocument::parsingAttributeString($wrap['attributes']);
 
-
-	/**
-	 * 
-	 */
-	function addNewStyles (string $styles, array $attributes = [], int $priority = 0) {
-		if (empty($attributes)) {
-			$attributes['type'] = 'text/css';
-		}
-		$style = new Style($this, $attributes, $priority);
-		$style->add($styles);
-		$this->content[] = $style;
-		$content_index   = array_keys($this->content);
-		$style->setMark(array_pop($content_index));
-	}
-
-
-
-	/**
-	 * 
-	 */
-	function getTags (string $tag) {
-		$result = [];
-
-		foreach ($this->content as &$c) {
-			if (is_object($c) && ($c->getTagName() === $tag)) {
-				$result[] = $c;
-			}
-		}
-
-		return $result;
-	}
-
-
-	/**
-	 * 
-	 */
-	function getTagsByAttribute (string $tag, string $attribute, string $value = null) {
-		$result = [];
-
-		foreach ($this->content as &$c) {
-			if (is_object($c) && ($c->getTagName() === $tag)) {
-				if (($attr_value = $c->attr($attribute)) !== null) {
-					if (isset($value)) {
-						if ($attr_value === $value) {
-							$result[] = $c;
-						}
-					} else {
-						$result[] = $c;
-					}
+				if (empty($params['attributes']['type'])) {
+					$params['attributes']['type'] = Style::DEFAULT_TYPE;
 				}
 			}
 		}
 
-		return $result;
-	}
-
-
-
-	/**
-	 * 
-	 */
-	function getTagsByFilter (string $tag,\Closure $filter) {
-		$result = [];
-
-		foreach ($this->content as &$c) {
-			if (is_object($c) && ($c->getTagName() === $tag)) {
-				if ($filter($c)) {
-					$result[] = $c;
-				}
-			}
-		}
-
-		return $result;
-	}
-
-
-
-	/**
-	 * 
-	 */
-	private function deleteTag (string $tag, HTMLElement $element) : Head {
-		if ($tag === $element->getTagName()) {
-			$i = $element->getMark();
-			if (!empty($this->content[$i])) {
-				unset($this->content[$i]);
-			}
+		if (empty($params) && ($element = $this->getFirstTagByAttribute('style', 'type', Style::DEFAULT_TYPE))) {
+			$element->add($styles);
 		} else {
-			throw new ErrorException('Uncaught TypeError: Argument 1 passed to delete'.ucfirst($tag).'() must be an instance of '.ucfirst($tag));
+			$params = array_replace_recursive([
+				'attributes' => [
+					'type' => Style::DEFAULT_TYPE
+				],
+				'priority' => 0
+			], $params);
+
+			if ($element === false && ($element = $this->getFirstSimilarTag('style', $params['attributes'], $params['priority']))) {
+				$element->add($styles);
+			} else {
+				// create new style element
+				$element = new Style($this, $params['attributes'], $params['priority']);
+				$element->add($styles);
+				$this->content[] = $element;
+				$content_index   = array_keys($this->content);
+				$element->setMark(array_pop($content_index));
+			}
 		}
 
-		return $this;
-	}
-
-
-
-	/**
-	 * 
-	 */
-	function deleteTagsByAttribute (string $tag, string $attribute, string $value = null) : Head {
-		foreach ($this->getTagsByAttribute($tag, $attribute, $value) as &$element) {
-			$this->deleteTag($tag, $element);
-		}
-
-		return $this;
+		return $element;
 	}
 }

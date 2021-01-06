@@ -1,4 +1,6 @@
 <?php
+use \docmanager\HTML\HTMLDocument as HTMLDocument;
+
 error_reporting(E_ALL); 
 ini_set('display_errors', 'On');
 set_time_limit(0);
@@ -22,7 +24,7 @@ spl_autoload_register(function ($path) {
 });
 
 $start = microtime(true);
-$page = new \docmanager\HTML\HTMLDocument(false, 'page');
+$page = new HTMLDocument(false, 'page');
 $page->html->attr('lang', 'ru')
            ->addClass('main')
            ->addClass('test')
@@ -30,17 +32,20 @@ $page->html->attr('lang', 'ru')
                  ->attr('data-test', true)
                  ->title->set('DocManager')
                         ->parent()
-                 ->setMeta(['name' => 'title', 'content' => 'DocManager'])
-                 ->addLink(['href' => './style.css', 'rel' => 'stylesheet'])
                  ->parent()
            ->body->addClass('body red')
                  ->removeClass('red')
                  ->attr('data-attr', 'test data attribute');
-$page->setMeta(['name' => 'description', 'content' => 'Document created with DocManager']);
+
+$page->addMeta(['name' => 'title', 'content' => 'DocManager']);
+$page->addMeta(['name' => 'description', 'content' => 'Document created with DocManager']);
+$page->addLink(['href' => './style.css', 'rel' => 'stylesheet']);
 $page->addLink(['href' => './style-m.css', 'rel' => 'stylesheet']);
+$page->addScript(file_get_contents('./console.js.html'), ['target' => 'head']);
+$page->addScript('', ['attributes' => ['src' => 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js']]);
 $end = microtime(true);
 
-$links = \docmanager\HTML\HTMLDocument::getHTMLDocument('page')->getLinksByFilter(function ($l) {
+$links = HTMLDocument::getHTMLDocument('page')->getLinksByFilter(function ($l) {
 	$link = $l->attr('href');
 	return $link === './style-m.css';
 });
@@ -72,10 +77,11 @@ p {
 	font-family: monospace;
 }
 CSS;
-$page->addStyles($styles_H1);
 $page->addStyles($new_styles_H1);
-$page->addNewStyles($styles_p);
-$page->addContent('<h1>DocManager</h1><p>Document created with DocManager</p>');
+$page->addStyles($styles_H1, ['attributes' => ['id' => 'first_h1'], 'priority' => -1]);
+$page->addStyles($styles_p);
+$page->addContent('<h1>DocManager</h1>');
+$page->addContent('<p>Document created with DocManager</p>');
 
 echo $page->get();
 echo "\n<!-- Time: ", ($end - $start),' -->';
