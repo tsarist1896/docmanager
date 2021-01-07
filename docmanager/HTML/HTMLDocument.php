@@ -2,6 +2,8 @@
 namespace docmanager\HTML;
 
 class HTMLDocument extends \docmanager\Document {
+	private $_remember  = [];
+
 	/**
 	 * 
 	 */
@@ -61,7 +63,7 @@ class HTMLDocument extends \docmanager\Document {
 	function __construct ($content = false, string $doc_name = '') {
 		if (!$content) {
 			$this->content['doctype'] = new Doctype();
-			$this->content['html']    = new Html();
+			$this->content['html']    = new Html($this);
 		} else {
 			$this->set($content);
 		}
@@ -127,6 +129,33 @@ class HTMLDocument extends \docmanager\Document {
 	 */
 	function closingSingleTag (bool $v) {
 		HTMLElement::closingSingleTag($v);
+	}
+
+
+
+	/**
+	 * @param string      $key
+	 * @param HTMLElement $element
+	 */
+	function rememberElement (string $key, ?HTMLElement $element = null) {
+		if (isset($element)) {
+			$this->_remember[$key] = $element;
+		} else {
+			$element = $this->_remember[$key] ?? null;
+		}
+
+		return $element;
+	}
+
+
+
+	/**
+	 * @param string $key
+	 */
+	function forgetElement (string $key) {
+		if (isset($this->_remember[$key])) {
+			unset($this->_remember[$key]);
+		}
 	}
 
 
@@ -315,6 +344,23 @@ class HTMLDocument extends \docmanager\Document {
 	function addScript (string $script, array $params = []) {
 		$target = (!empty($params['target']) && in_array($params['target'], ['head', 'body'])) ? $params['target'] : 'body';
 		$this->content['html']->{$target}->addScript($script, $params);
+	}
+
+
+
+	/**
+	 * @param string $id
+	 */
+	function getElementById (string $id) {
+		$result = null;
+
+		if ($element = $this->rememberElement($id)) {
+			if ($element->attr('id') === $id) {
+				$result = $element;
+			}
+		}
+
+		return $result;
 	}
 
 

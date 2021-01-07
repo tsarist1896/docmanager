@@ -13,6 +13,29 @@ abstract class HTMLElement {
 
 
 
+	/**
+	 * 
+	 */
+	static function closingSingleTag (bool $v) {
+		self::$closing_single_tag = $v;
+	}
+
+
+
+	/**
+	 * 
+	 */
+	function __destruct () {
+		if (!empty($this->attributes['id'])) {
+			$this->forgetId($this->attributes['id']);
+		}
+	}
+
+
+
+	/**
+	 * 
+	 */
 	function __get ($name) {
 		$result   = null;
 		$property = "__{$name}";
@@ -26,6 +49,9 @@ abstract class HTMLElement {
 
 
 
+	/**
+	 * 
+	 */
 	function __toString () {
 		return $this->outerHTML();
 	}
@@ -35,8 +61,60 @@ abstract class HTMLElement {
 	/**
 	 * 
 	 */
-	static function closingSingleTag (bool $v) {
-		self::$closing_single_tag = $v;
+	private function getDocument () : ?HTMLDocument {
+		$document = null;
+
+		if ($html = $this->getHtmlElement()) {
+			$document = $html->document ?? null;
+		}
+
+		return $document;
+	}
+
+
+
+	/**
+	 * 
+	 */
+	private function getHtmlElement () : ?Html {
+		$html     = null;
+		$element  = $this;
+		$max_i    = 100;
+
+		do {
+			if ($element->getTagName() === 'html') {
+				$html = $element;
+				break;
+			} else {
+				$element = $element->parent();
+			}
+			$max_i--;
+		} while ($element && ($max_i > 0));
+
+		return $html;
+	}
+
+
+
+	/**
+	 * @param string $id
+	 * @param bool   $status
+	 */
+	private function rememberId (string $id) {
+		if ($document = $this->getDocument()) {
+			$document->rememberElement($id, $this);
+		}
+	}
+
+
+
+	/**
+	 * @param string $id
+	 */
+	private function forgetId (string $id) {
+		if ($document = $this->getDocument()) {
+			$document->forgetElement($id);
+		}
 	}
 
 
@@ -175,27 +253,48 @@ abstract class HTMLElement {
 
 
 	/**
+	 * @param string $attribute
+	 * @param string $value
+	 */
+	private function setAttribute (string $attribute, string $value = '') {
+		$attribute = strtolower($attribute);
+		if (empty($this->valid_attributes) || in_array($attribute, $this->valid_attributes)) {
+			if ($value !== null) {
+				if ($attribute === 'id') {
+					$old_id = $this->attributes['id'] ?? null;
+					if (isset($old_id) && $old_id !== $value) {
+						$this->forgetId($old_id);
+					}
+					$this->rememberId($value);
+				}
+
+				$this->attributes[$attribute] = $value;
+			} elseif (isset($this->attributes[$attribute])) {
+				unset($this->attributes[$attribute]);
+			}
+		}
+	}
+
+
+
+	/**
 	 * Sets/returns the attribute value
 	 */
-	function attr ($name, ...$val) {
+	function attr ($attribute, ...$val) {
 		$r = null;
 
-		if (is_array($name)) {
-			$this->attributes = array_merge($this->attributes, $name);
+		if (is_array($attribute)) {
+			foreach ($attribute as $a => $v) {
+				$this->setAttribute($a, $v);
+			}
+
 			$r = $this;
 		} else {
-			if (isset($val[0])) {
-				if (empty($this->valid_attributes) || in_array($name, $this->valid_attributes)) {
-					if ($val[0] !== null) {
-						$this->attributes[$name] = $val[0];
-					} elseif (isset($this->attributes[$name])) {
-						unset($this->attributes[$name]);
-					}
-				}
-	
+			if (count($val) > 0) {
+				$this->setAttribute($attribute, $val[0]);
 				$r = $this;
 			} else {
-				$r = $this->attributes[$name] ?? null;
+				$r = $this->attributes[strtolower($attribute)] ?? null;
 			}
 		}
 

@@ -30,17 +30,21 @@ trait ManageInnerTags {
 	function getFirstTagByAttribute (string $tag, string $attribute, string $value = null) : ?HTMLElement {
 		$result = null;
 
-		foreach ($this->content as &$c) {
-			if (is_object($c) && ($c->getTagName() === $tag)) {
-				if (($attr_value = $c->attr($attribute)) !== null) {
-					if (isset($value)) {
-						if ($attr_value === $value) {
+		if ($attribute === 'id' && ($document = $this->getDocument())) {
+			$result = $document->getElementById($value);
+		} else {
+			foreach ($this->content as &$c) {
+				if (is_object($c) && ($c->getTagName() === $tag)) {
+					if (($attr_value = $c->attr($attribute)) !== null) {
+						if (isset($value)) {
+							if ($attr_value === $value) {
+								$result = $c;
+								break;
+							}
+						} else {
 							$result = $c;
 							break;
 						}
-					} else {
-						$result = $c;
-						break;
 					}
 				}
 			}
@@ -57,15 +61,21 @@ trait ManageInnerTags {
 	function getTagsByAttribute (string $tag, string $attribute, string $value = null) : array {
 		$result = [];
 
-		foreach ($this->content as &$c) {
-			if (is_object($c) && ($c->getTagName() === $tag)) {
-				if (($attr_value = $c->attr($attribute)) !== null) {
-					if (isset($value)) {
-						if ($attr_value === $value) {
+		if ($attribute === 'id' && ($document = $this->getDocument())) {
+			if ($element = $document->getElementById($value)) {
+				$result[] = $element;
+			}
+		} else {
+			foreach ($this->content as &$c) {
+				if (is_object($c) && ($c->getTagName() === $tag)) {
+					if (($attr_value = $c->attr($attribute)) !== null) {
+						if (isset($value)) {
+							if ($attr_value === $value) {
+								$result[] = $c;
+							}
+						} else {
 							$result[] = $c;
 						}
-					} else {
-						$result[] = $c;
 					}
 				}
 			}
