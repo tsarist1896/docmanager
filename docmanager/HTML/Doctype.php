@@ -21,7 +21,7 @@ final class Doctype extends HTMLElement {
 	 */
 	function getVersion () {
 		return [
-			'type'        => $this->$html_type,
+			'type'        => $this->html_type,
 			'version'     => $this->html_version,
 			'mode'        => $this->html_mode,
 			'xhtml_basic' => $this->xhtml_basic

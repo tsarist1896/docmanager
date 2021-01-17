@@ -3,6 +3,7 @@ namespace docmanager\HTML;
 
 class HTMLDocument extends \docmanager\Document {
 	private $_remember  = [];
+	private $_callFn    = [];
 
 	/**
 	 * 
@@ -68,6 +69,37 @@ class HTMLDocument extends \docmanager\Document {
 			$this->set($content);
 		}
 
+		$this->_callFn = [
+			'getDocumentVersion' => [
+				'object'   => $this->content['doctype'],
+				'function' => 'getVersion'
+			],
+			'setDocumentVersion' => [
+				'object'   => $this->content['doctype'],
+				'function' => 'setVersion'
+			],
+			'setTitle' => [
+				'object'   => $this->content['html']->head->title,
+				'function' => 'setTitle'
+			],
+			'getTitle' => [
+				'object'   => $this->content['html']->head->title,
+				'function' => 'get'
+			],
+			'setCharset' => [
+				'object'   => $this->content['html']->head,
+				'function' => 'setCharset'
+			],
+			'getCharset' => [
+				'object'   => $this->content['html']->head,
+				'function' => 'getCharset'
+			],
+			'addContent' => [
+				'object'   => $this->content['html']->body,
+				'function' => 'addContent'
+			]
+		];
+
 		self::rememberDocument($this, 'HTML', $doc_name);
 	}
 
@@ -93,6 +125,19 @@ class HTMLDocument extends \docmanager\Document {
 	/**
 	 * 
 	 */
+	function __call ($method, $arguments) {
+		if (!isset($this->_callFn[$method])) {
+			throw new \Exception('Call to undefined method '.__CLASS__.'::'.$method.'()');
+		}
+
+		return $this->_callFn[$method]['object']->{$this->_callFn[$method]['function']}(...$arguments);
+	}
+
+
+
+	/**
+	 * 
+	 */
 	function get () {
 		return implode('', $this->content);
 	}
@@ -103,24 +148,6 @@ class HTMLDocument extends \docmanager\Document {
 	 * 
 	 */
 	function set ($content) {}
-
-
-
-	/**
-	 * 
-	 */
-	function getDocumentVersion () {
-		return $this->content['doctype']->getVersion();
-	}
-
-
-
-	/**
-	 * 
-	 */
-	function setDocumentVersion ($type, $version, $params = []) {
-		$this->content['doctype']->setVersion($type, $version, $params);
-	}
 
 
 
@@ -156,42 +183,6 @@ class HTMLDocument extends \docmanager\Document {
 		if (isset($this->_remember[$key])) {
 			unset($this->_remember[$key]);
 		}
-	}
-
-
-
-	/**
-	 * 
-	 */
-	function setTitle ($title) {
-		$this->content['html']->head->title->set($title);
-	}
-
-
-
-	/**
-	 * 
-	 */
-	function getTitle () : string {
-		return $this->content['html']->head->title->get();
-	}
-
-
-
-	/**
-	 * 
-	 */
-	function setCharset ($charset) {
-		$this->content['html']->head->setCharset($charset);
-	}
-
-
-
-	/**
-	 * 
-	 */
-	function getCharset () {
-		return $this->content['html']->head->getCharset();
 	}
 
 
@@ -361,14 +352,5 @@ class HTMLDocument extends \docmanager\Document {
 		}
 
 		return $result;
-	}
-
-
-
-	/**
-	 * 
-	 */
-	function addContent ($content) {
-		$this->content['html']->body->addContent($content);
 	}
 }

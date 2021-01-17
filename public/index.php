@@ -43,7 +43,7 @@ $page->addLink(['href' => './style.css', 'rel' => 'stylesheet']);
 $page->addLink(['href' => './style-m.css', 'rel' => 'stylesheet']);
 $page->addScript(file_get_contents('./console.js.html'), ['target' => 'head']);
 $page->addScript('', ['attributes' => ['src' => 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js']]);
-$end = microtime(true);
+
 
 $links = HTMLDocument::getHTMLDocument('page')->getLinksByFilter(function ($l) {
 	$link = $l->attr('href');
@@ -84,4 +84,5 @@ $page->addContent('<h1>DocManager</h1>');
 $page->addContent('<p>Document created with DocManager</p>');
 
 echo $page->get();
+$end = microtime(true);
 echo "\n<!-- Time: ", ($end - $start),' -->';
