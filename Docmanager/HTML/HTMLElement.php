@@ -1,5 +1,5 @@
 <?php
-namespace docmanager\HTML;
+namespace Docmanager\HTML;
 
 abstract class HTMLElement {
 	protected static $closing_single_tag = false;

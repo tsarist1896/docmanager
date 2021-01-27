@@ -1,5 +1,5 @@
 <?php
-namespace docmanager\HTML;
+namespace Docmanager\HTML;
 
 final class Body extends HTMLElement {
 	use ManageInnerTags;
@@ -51,7 +51,7 @@ final class Body extends HTMLElement {
 			return ($p1 > $p2 ? 1 : ($p1 === $p2 ? 0 : -1));
 		});
 
-		return implode("\n", $this->content);
+		return parent::__toString();
 	}
 
 

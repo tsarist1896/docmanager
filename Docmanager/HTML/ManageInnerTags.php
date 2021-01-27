@@ -1,5 +1,5 @@
 <?php
-namespace docmanager\HTML;
+namespace Docmanager\HTML;
 
 trait ManageInnerTags {
 	function __call ($method, $arguments) {

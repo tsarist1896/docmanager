@@ -1,5 +1,5 @@
 <?php
-namespace docmanager\HTML;
+namespace Docmanager\HTML;
 
 final class Doctype extends HTMLElement {
 	private $html_type    = 'html';

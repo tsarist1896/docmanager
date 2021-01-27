@@ -1,5 +1,5 @@
 <?php
-namespace docmanager\HTML;
+namespace Docmanager\HTML;
 
 trait HTMLElementPriority {
 	protected $priority = 0;

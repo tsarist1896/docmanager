@@ -1,5 +1,5 @@
 <?php
-namespace docmanager\HTML;
+namespace Docmanager\HTML;
 
 final class Title extends HTMLElement {
 	function __construct ($parent = null) {

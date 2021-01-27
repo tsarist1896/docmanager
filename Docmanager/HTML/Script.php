@@ -1,5 +1,5 @@
 <?php
-namespace docmanager\HTML;
+namespace Docmanager\HTML;
 
 final class Script extends HTMLElement {
 	use HTMLElementPriority;

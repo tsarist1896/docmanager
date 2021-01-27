@@ -1,5 +1,5 @@
 <?php
-use \docmanager\HTML\HTMLDocument as HTMLDocument;
+use \Docmanager\HTML\HTMLDocument as HTMLDocument;
 
 error_reporting(E_ALL); 
 ini_set('display_errors', 'On');

@@ -1,7 +1,7 @@
 <?php
-namespace docmanager\HTML;
+namespace Docmanager\HTML;
 
-class HTMLDocument extends \docmanager\Document {
+class HTMLDocument extends \Docmanager\Document {
 	private $_remember  = [];
 	private $_callFn    = [];
 
@@ -80,7 +80,7 @@ class HTMLDocument extends \docmanager\Document {
 			],
 			'setTitle' => [
 				'object'   => $this->content['html']->head->title,
-				'function' => 'setTitle'
+				'function' => 'set'
 			],
 			'getTitle' => [
 				'object'   => $this->content['html']->head->title,

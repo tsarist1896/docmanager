@@ -1,5 +1,5 @@
 <?php #PHP 7.2
-namespace docmanager;
+namespace Docmanager;
 
 abstract class Document {
 	private static $docs = [];

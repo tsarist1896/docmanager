@@ -1,5 +1,5 @@
 <?php
-namespace docmanager\HTML;
+namespace Docmanager\HTML;
 
 final class Link extends HTMLElement {
 	use HTMLElementPriority;
